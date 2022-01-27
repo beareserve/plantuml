@@ -1,0 +1,33 @@
+@startuml
+!include <archimate/Archimate>
+
+' Elements
+Business_Object(businessObject, "业务对象")
+Business_Process(someBusinessProcess,"业务处理")
+Business_Service(itSupportService, "IT支               持")
+
+Application_DataObject(dataObject, "应用数据页面'")
+Application_Function(webpageBehaviour, "网页行为")
+Application_Component(ActivePartWebPage, "激活页面'")
+
+Technology_Artifact(inMemoryItem,"静态资源存储")
+Technology_Service(internetBrowser, "浏览器通用插件")
+Technology_Service(internetBrowserPlugin, "浏览器插件")
+Technology_Service(webServer, "web服务器")
+
+'Relationships
+Rel_Flow_Left(someBusinessProcess, businessObject, "")
+Rel_Serving_Up(itSupportService, someBusinessProcess, "")
+Rel_Specialization_Up(webpageBehaviour, itSupportService, "")
+Rel_Flow_Right(dataObject, webpageBehaviour, "")
+Rel_Specialization_Up(dataObject, businessObject, "")
+Rel_Assignment_Left(ActivePartWebPage, webpageBehaviour, "")
+Rel_Specialization_Up(inMemoryItem, dataObject, "")
+Rel_Realization_Up(inMemoryItem, ActivePartWebPage, "")
+Rel_Specialization_Right(inMemoryItem,internetBrowser, "")
+Rel_Serving_Up(internetBrowser, webpageBehaviour, "")
+Rel_Serving_Up(internetBrowserPlugin, webpageBehaviour, "")
+Rel_Aggregation_Right(internetBrowser, internetBrowserPlugin, "")
+Rel_Access_Up(webServer, inMemoryItem, "")
+Rel_Serving_Up(webServer, internetBrowser, "")
+@enduml
