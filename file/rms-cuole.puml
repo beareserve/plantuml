@@ -1,0 +1,30 @@
+@startuml
+!include <tupadr3/common>
+!include <tupadr3/devicons/mysql>
+
+scale 1.5
+'rectangle 风控规则 #lightgreen
+'rectangle 额度规则 #lightgreen
+
+folder 决策引擎 {
+	(风控规则)
+	(额度规则)
+}
+
+rectangle 百融 #lightyellow
+rectangle 融360 #lightyellow
+rectangle ronghe #lightyellow
+rectangle 同盾 #lightyellow
+rectangle 天智 #lightyellow
+rectangle 本地模型 #lightblue
+rectangle 额度系统 #lightblue
+rectangle models #red
+决策引擎 -down-> models
+models -down->  百融
+models -down->  融360
+models -down->  ronghe
+models -down->  同盾
+models -down->  天智
+models -down->  本地模型
+models -down->  额度系统
+@enduml

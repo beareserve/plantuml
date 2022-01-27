@@ -1,0 +1,12 @@
+@startuml RMS
+rms -> 表risk_customer_data_info : riskCustomerDataInfoMapper.getOverdueOrderInfo()
+activate 订单
+表risk_customer_data_info -> 订单 : 筛选审核时间2天前资料结果未审核，资料上传时间为空的
+activate Post
+订单 -> Post : 调用接口：http://ins.rms-post.juzifenqi.com/push/extendApprove.json
+deactivate 订单
+订单 --> 表risk_customer_data_info: 更新状态为超时
+deactivate 表risk_customer_data_info
+表risk_customer_data_info --> rms: 结束
+return
+@enduml

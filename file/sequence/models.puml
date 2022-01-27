@@ -1,0 +1,26 @@
+@startuml 风控内部java应用
+风控额度规则 -> models : ？
+activate models
+models -> 百融模型分 : 模型调用
+本地模型 -> models : 返回变量
+models -> 风控额度规则: 结果返回
+activate 融360
+models -> 额度系统 : 模型调用
+额度系统 -> models : 返回变量
+models -> 风控额度规则: 结果返回
+activate ronghe
+models -> ronghe : 模型调用
+ronghe -> models : 返回变量
+models -> 风控额度规则: 结果返回
+activate 同盾
+models -> 同盾 : 模型调用
+同盾 -> models : 返回变量
+models -> 风控额度规则: 结果返回
+activate 天智
+models -> 天智 : 模型调用
+天智 -> models : 返回变量
+models -> 风控额度规则: 结果返回
+deactivate models
+models --> 风控额度规则: 返回全部变量结果
+return
+@enduml

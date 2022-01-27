@@ -1,0 +1,18 @@
+@startuml
+变量网关 -> 二方变量 : com.jzsk.rms.inner.variable.api.RpcInnerVariableService#getVariResult
+activate 二方变量
+二方变量 -> 本地模型 : 查询本地模型表
+本地模型 -> 二方变量 : 返回变量
+activate 额度系统
+二方变量 -> 额度系统 : 调用接口：com.juzishuke.credit.api.CreditQueryProvider#getCustomerCreditChannelDetail
+额度系统 -> 二方变量 : 返回变量
+activate 用户中心
+二方变量 -> 用户中心 : 调用接口：com.juzifenqi.member.v2.api.MemberQueryApi#getMemberAttribution
+用户中心 -> 二方变量 : 返回变量
+activate 桔子互联
+二方变量 -> 桔子互联 : 调用接口：https://ins-ink-datasource.jzhlkj.com/hulian/memberCredit/openapi/inner/queryRiskCredit
+桔子互联 -> 二方变量 : 返回变量
+deactivate 二方变量
+二方变量 --> 变量网关: 返回全部变量结果
+return
+@enduml

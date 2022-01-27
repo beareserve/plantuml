@@ -1,0 +1,13 @@
+@startuml
+'!define Junction_Or circle #black
+'!define Junction_And circle #whitesmoke
+rectangle 额度规则allot #orange
+rectangle 新决策引擎
+rectangle 老桔盾rms #lightgreen
+rectangle post #lightgreen
+rectangle 电核系统 #red
+老桔盾rms -down-> 电核系统 : 进件(TOPIC_PRD_FK_RMS_TO_MANUAL_APPROVE_INIT_CASE)\n状态变更(TOPIC_PRD_FK_RMS_TO_MANUAL_APPROVE_CANCEL_ORDER)
+新决策引擎 -down-> 电核系统 : 接收mq（同老引擎）
+额度规则allot -down-> 电核系统 : 流转
+电核系统 -down-> post : 结果推送rms(topic:TOPIC_PRD_FK_MANUAL_APPROVE_TO_RMS)
+@enduml
