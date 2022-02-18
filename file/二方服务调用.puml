@@ -1,0 +1,15 @@
+@startuml
+'!define Junction_Or circle #black
+'!define Junction_And circle #whitesmoke
+rectangle 变量网关 #orange
+rectangle 认证中心
+rectangle 额度 #lightgreen
+rectangle 模型 #lightblue
+rectangle 桔子互联 #lightgray
+rectangle 二方变量 #red
+二方变量 -down-> 额度
+二方变量 -down->  认证中心
+变量网关 -down-> 二方变量
+二方变量 -down-> 模型
+二方变量 -down-> 桔子互联
+@enduml
