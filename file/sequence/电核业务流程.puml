@@ -1,0 +1,12 @@
+@startuml
+前端 -> "front/收单" : 用户下单
+activate "front/收单"
+activate "规则引擎"
+activate 电核
+"front/收单" -> "规则引擎": 推送订单
+"front/收单" -> "电核": 初始进件
+activate 电核
+"规则引擎" -> "电核" : 更新状态，人工单进行转人工
+deactivate "front/收单"
+return
+@enduml
