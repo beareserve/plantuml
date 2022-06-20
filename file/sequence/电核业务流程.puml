@@ -1,12 +1,29 @@
 @startuml
-前端 -> "front/收单" : 用户下单
-activate "front/收单"
+skinparam responseMessageBelowArrow true
+hide unlinked
+participant 电核 as d
+participant "front/收单" as rao
+autonumber
+前端 -> rao : 用户下单
+activate rao
 activate "规则引擎"
-activate 电核
-"front/收单" -> "规则引擎": 推送订单
-"front/收单" -> "电核": 初始进件
-activate 电核
-"规则引擎" -> "电核" : 更新状态，人工单进行转人工
-deactivate "front/收单"
+activate 电核 #FFBBBB
+||13|
+autonumber2.1
+rao -[#red]> "规则引擎": 推送订单
+hnote right: 引擎进行处理
+rao -> d: 初始进件
+电核 -> rao: aaa
+
+== 前 ==
+activate 电核#DarkSalmon
+deactivate 电核
+autonumber3
+"规则引擎" ->d --++: 更新状态，人工单进行转人工
+create 题库
+电核 -> 题库:来了
+deactivate rao
 return
+[->电话
+电话->]
 @enduml
