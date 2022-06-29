@@ -1,63 +1,47 @@
 @startuml
 skinparam responseMessageBelowArrow true
 hide unlinked
-participant "RpcInnerVariableServiceImpl" as q
-participant "InnerVariHandlerServiceImpl" as rao
-participant 规则引擎 as y
-participant 电核 as d
-participant 题库 as t
-participant 额度 as e
+participant "RpcInnerVariableServiceImpl" as 入口
 
-[-> q : dubbo入口：getVariResult
-activate RpcInnerVariableServiceImpl
-RpcInnerVariableServiceImpl -> InnerVariHandlerService : handler
-activate InnerVariHandlerService
-InnerVariHandlerService -> InnerVariHandlerServiceImpl : handler
+[->入口 : dubbo入口：getVariResult
+autonumber
+activate 入口
+入口 -> InnerVariHandlerServiceImpl : handler
 activate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : λ→
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : 遍历处理每个变量
 activate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : handler
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : handlerSingle：读取变量配置\n 处理单个变量
 activate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : λ→
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : 变量调用超时包装
 activate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : getSingleVariableResult
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : ：根据变量类型分发到不同线程池执行：\n   getSingleVariableResult
 activate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl -> VariableServiceContext : get
+InnerVariHandlerServiceImpl -> VariableServiceContext : 依照变量配置获取处理类
 activate VariableServiceContext
 VariableServiceContext --> InnerVariHandlerServiceImpl
 deactivate VariableServiceContext
-InnerVariHandlerServiceImpl -> VariableServiceContext : get
-activate VariableServiceContext
-VariableServiceContext --> InnerVariHandlerServiceImpl
-deactivate VariableServiceContext
-InnerVariHandlerServiceImpl -> VariResult : ofNull
+InnerVariHandlerServiceImpl -> VariResult : 未找到处理类返回空：ofNull
 activate VariResult
 VariResult --> InnerVariHandlerServiceImpl
 deactivate VariResult
-InnerVariHandlerServiceImpl -> VariableService : handler
-activate VariableService
-VariableService -> AbstractVariableService : handler
+InnerVariHandlerServiceImpl ->  AbstractVariableService : handler
 activate AbstractVariableService
-AbstractVariableService -> AbstractVariableService : preProcess
+AbstractVariableService -> AbstractVariableService : 参数预处理，设置mysql变量数据源，\n入参校验，入参解析等：preProcess
 activate AbstractVariableService
-AbstractVariableService --> AbstractVariableService
 deactivate AbstractVariableService
-AbstractVariableService -> VariResult : ofNull
+AbstractVariableService -> VariResult : 参数校验失败，返回空结果：ofNull
 activate VariResult
 VariResult --> AbstractVariableService
 deactivate VariResult
-AbstractVariableService -> AbstractVariableService : process
+AbstractVariableService -> AbstractVariableService : 查数据库，调用接口：process
 activate AbstractVariableService
 AbstractVariableService --> AbstractVariableService
 deactivate AbstractVariableService
-AbstractVariableService -> AbstractVariableService : postProcess
+AbstractVariableService -> AbstractVariableService : 拿到mysql或接口的结果，进行后置解析：postProcess
 activate AbstractVariableService
 AbstractVariableService --> AbstractVariableService
 deactivate AbstractVariableService
-AbstractVariableService --> VariableService
-deactivate AbstractVariableService
-VariableService --> InnerVariHandlerServiceImpl
-deactivate VariableService
+AbstractVariableService --> InnerVariHandlerServiceImpl
 InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
 deactivate InnerVariHandlerServiceImpl
 InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
@@ -90,13 +74,10 @@ InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : λ→
 activate InnerVariHandlerServiceImpl
 InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
 deactivate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl --> InnerVariHandlerService
-deactivate InnerVariHandlerServiceImpl
-InnerVariHandlerService --> RpcInnerVariableServiceImpl
-deactivate InnerVariHandlerService
-RpcInnerVariableServiceImpl -> InnerVariResponse : data
+入口 -> InnerVariResponse : data
 activate InnerVariResponse
-InnerVariResponse --> RpcInnerVariableServiceImpl
+InnerVariResponse --> 入口
+入口 ->[:返回变量结果
 deactivate InnerVariResponse
 return
 @enduml
