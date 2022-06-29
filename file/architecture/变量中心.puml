@@ -10,7 +10,7 @@ AddRelTag("sync/async", $textColor=$ARROW_COLOR, $lineColor=$ARROW_COLOR, $lineS
 
 title 风控变量中心
 
-Person(j, 决策引擎, "风险识别，风险决策，风险处置")
+System(j, 决策引擎, "风险识别，风险决策，风险处置")
 
 System_Boundary(c1, "变量中心") {
     Container(b, "统一变量网关", "Java, Springboot", "统一三方变量、变量引擎(大数据变量)、模型中心、二方变量、应用变量的变量查询，统一查询接口请求/响应格式，提供变量查询的统一入口。")
@@ -41,7 +41,6 @@ Rel(b, m, "invoke", "dubbo")
 
 'System_Ext(banking_system, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
 'Rel_Neighbor(m, banking_system, "Uses", "sync/async, XML/HTTPS", $tags="sync/async")
-
 SHOW_LEGEND()
 footer drawn with PlantUML v. %version() and C4-PlantUML v. C4Version()
 @enduml
