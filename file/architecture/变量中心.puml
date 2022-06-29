@@ -1,0 +1,47 @@
+@startuml
+!include C:\Users\Dell\IdeaProjects\new\C4-PlantUML\C4_Container.puml
+
+SHOW_PERSON_OUTLINE()
+' Tags support no spaces in the name (based on the underlining stereotypes, which don't support spaces anymore).
+' If spaces are requested in the legend, legend text with space has to be defined
+AddElementTag("backendContainer", $fontColor=$ELEMENT_FONT_COLOR, $bgColor="#335DA5", $shape=EightSidedShape(), $legendText="backend container (eight sided)")
+AddRelTag("async", $textColor=$ARROW_COLOR, $lineColor=$ARROW_COLOR, $lineStyle=DashedLine())
+AddRelTag("sync/async", $textColor=$ARROW_COLOR, $lineColor=$ARROW_COLOR, $lineStyle=DottedLine())
+
+title 风控变量中心
+
+Person(j, 决策引擎, "风险识别，风险决策，风险处置")
+
+System_Boundary(c1, "变量中心") {
+    Container(b, "统一变量网关", "Java, Springboot", "统一三方变量、变量引擎(大数据变量)、模型中心、二方变量、应用变量的变量查询，统一查询接口请求/响应格式，提供变量查询的统一入口。")
+    Container(e, "二方变量平台", "Java, Springboot", "提供风控内部变量查询")
+    Container(s, "三方变量平台", "Java, Springboot", "提供外部三方数据源查询")
+    Container(sp, "三方配置平台", "Java, Springboot", "对接外部数据源系统，保存数据")
+    Container(m, "模型", "Java, Springboot", "提供模型执行结果查询")
+    Container(d, "大数据变量中心", "Java, Springboot", "Delivers the static content and the Internet banking SPA")
+}
+
+'System_Ext(email_system, "E-Mail System", "The internal Microsoft Exchange system")
+
+Rel(j, b, "invoke", "dubbo")
+
+Rel(b, s, "invoke", "dubbo")
+Rel(s, sp, "invoke", "dubbo")
+Rel(b, e, "invoke", "dubbo")
+Rel(b, d, "invoke", "http")
+Rel(b, m, "invoke", "dubbo")
+'Rel(b, m, "invoke", "async, JSON/HTTPS", $tags="async")
+
+'Rel_Neighbor(d, b, "Delivers")
+'Rel(e, m, "Uses", "async, JSON/HTTPS", $tags="async")
+'Rel_Back_Neighbor(s, m, "Reads from and writes to", "sync, JDBC")
+
+'Rel_Back(j, email_system, "Sends e-mails to")
+'Rel_Back(email_system, m, "Sends e-mails using", "sync, SMTP")
+
+'System_Ext(banking_system, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+'Rel_Neighbor(m, banking_system, "Uses", "sync/async, XML/HTTPS", $tags="sync/async")
+
+SHOW_LEGEND()
+footer drawn with PlantUML v. %version() and C4-PlantUML v. C4Version()
+@enduml
