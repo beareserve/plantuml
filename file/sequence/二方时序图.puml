@@ -1,0 +1,102 @@
+@startuml
+skinparam responseMessageBelowArrow true
+hide unlinked
+participant "RpcInnerVariableServiceImpl" as q
+participant "InnerVariHandlerServiceImpl" as rao
+participant 规则引擎 as y
+participant 电核 as d
+participant 题库 as t
+participant 额度 as e
+
+[-> q : dubbo入口：getVariResult
+activate RpcInnerVariableServiceImpl
+RpcInnerVariableServiceImpl -> InnerVariHandlerService : handler
+activate InnerVariHandlerService
+InnerVariHandlerService -> InnerVariHandlerServiceImpl : handler
+activate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : λ→
+activate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : handler
+activate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : λ→
+activate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : getSingleVariableResult
+activate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl -> VariableServiceContext : get
+activate VariableServiceContext
+VariableServiceContext --> InnerVariHandlerServiceImpl
+deactivate VariableServiceContext
+InnerVariHandlerServiceImpl -> VariableServiceContext : get
+activate VariableServiceContext
+VariableServiceContext --> InnerVariHandlerServiceImpl
+deactivate VariableServiceContext
+InnerVariHandlerServiceImpl -> VariResult : ofNull
+activate VariResult
+VariResult --> InnerVariHandlerServiceImpl
+deactivate VariResult
+InnerVariHandlerServiceImpl -> VariableService : handler
+activate VariableService
+VariableService -> AbstractVariableService : handler
+activate AbstractVariableService
+AbstractVariableService -> AbstractVariableService : preProcess
+activate AbstractVariableService
+AbstractVariableService --> AbstractVariableService
+deactivate AbstractVariableService
+AbstractVariableService -> VariResult : ofNull
+activate VariResult
+VariResult --> AbstractVariableService
+deactivate VariResult
+AbstractVariableService -> AbstractVariableService : process
+activate AbstractVariableService
+AbstractVariableService --> AbstractVariableService
+deactivate AbstractVariableService
+AbstractVariableService -> AbstractVariableService : postProcess
+activate AbstractVariableService
+AbstractVariableService --> AbstractVariableService
+deactivate AbstractVariableService
+AbstractVariableService --> VariableService
+deactivate AbstractVariableService
+VariableService --> InnerVariHandlerServiceImpl
+deactivate VariableService
+InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl -> VariableServiceContext : getExecutor
+activate VariableServiceContext
+VariableServiceContext -> VariableTypeEnum : getExecutorName
+activate VariableTypeEnum
+VariableTypeEnum --> VariableServiceContext
+deactivate VariableTypeEnum
+VariableServiceContext --> InnerVariHandlerServiceImpl
+deactivate VariableServiceContext
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : withTimeout
+activate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : timeoutAfter
+activate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : λ→
+activate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : λ→
+activate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> InnerVariHandlerService
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerService --> RpcInnerVariableServiceImpl
+deactivate InnerVariHandlerService
+RpcInnerVariableServiceImpl -> InnerVariResponse : data
+activate InnerVariResponse
+InnerVariResponse --> RpcInnerVariableServiceImpl
+deactivate InnerVariResponse
+return
+@enduml

@@ -1,5 +1,6 @@
 @startuml
-!include C:\Users\Dell\IdeaProjects\new\C4-PlantUML\C4_Container.puml
+'!include C:\Users\Dell\IdeaProjects\new\C4-PlantUML\C4_Container.puml
+!include D:\Users\run\IdeaProjects\jz\C4-PlantUML\C4_Container.puml
 
 SHOW_PERSON_OUTLINE()
 ' Tags support no spaces in the name (based on the underlining stereotypes, which don't support spaces anymore).
@@ -13,13 +14,14 @@ title 风控变量中心
 System(j, 决策引擎, "风险识别，风险决策，风险处置")
 
 System_Boundary(c1, "变量中心") {
-    Container(b, "统一变量网关", "Java, Springboot", "统一三方变量、变量引擎(大数据变量)、模型中心、二方变量、应用变量的变量查询，统一查询接口请求/响应格式，提供变量查询的统一入口。")
-    Container(e, "二方变量平台", "Java, Springboot", "提供风控内部变量查询")
-    Container(s, "三方变量平台", "Java, Springboot", "提供外部三方数据源查询")
-    Container(sp, "三方配置平台", "Java, Springboot", "对接外部数据源系统，保存数据")
+    Container(b, "统一变量网关", "Java, Spring boot", "统一三方变量、变量引擎(大数据变量)、模型中心、二方变量、应用变量的变量查询，统一查询接口请求/响应格式，提供变量查询的统一入口。")
+    Container(e, "二方变量平台", "Java, Spring boot", "提供风控内部变量查询")
+    Container(s, "三方变量平台", "Java, Spring boot", "提供外部三方数据源查询")
+    Container(sp, "三方配置平台", "Java, Spring boot", "对接外部数据源系统，保存数据")
     Container(m, "模型", "Java, Springboot", "提供模型执行结果查询")
-    Container(d, "大数据变量中心", "Java, Springboot", "Delivers the static content and the Internet banking SPA")
+    Container(d, "大数据变量中心", "", "为线上数据分析提供底层实时变量")
 }
+
 
 'System_Ext(email_system, "E-Mail System", "The internal Microsoft Exchange system")
 
