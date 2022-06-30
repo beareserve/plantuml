@@ -8,7 +8,7 @@ autonumber
 activate 入口
 入口 -> InnerVariHandlerServiceImpl : handler
 activate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : 遍历处理每个变量
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : 遍历处理每个变量，结果保存到future集合
 activate InnerVariHandlerServiceImpl
 InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : handlerSingle：读取变量配置\n 处理单个变量
 activate InnerVariHandlerServiceImpl
@@ -24,7 +24,7 @@ InnerVariHandlerServiceImpl -> VariResult : 未找到处理类返回空：ofNull
 activate VariResult
 VariResult --> InnerVariHandlerServiceImpl
 deactivate VariResult
-InnerVariHandlerServiceImpl ->  AbstractVariableService : handler
+InnerVariHandlerServiceImpl ->  AbstractVariableService : 找到具体的处理类进行处理：handler
 activate AbstractVariableService
 AbstractVariableService -> AbstractVariableService : 参数预处理，设置mysql变量数据源，\n入参校验，入参解析等：preProcess
 activate AbstractVariableService
@@ -35,49 +35,41 @@ VariResult --> AbstractVariableService
 deactivate VariResult
 AbstractVariableService -> AbstractVariableService : 查数据库，调用接口：process
 activate AbstractVariableService
-AbstractVariableService --> AbstractVariableService
 deactivate AbstractVariableService
 AbstractVariableService -> AbstractVariableService : 拿到mysql或接口的结果，进行后置解析：postProcess
 activate AbstractVariableService
-AbstractVariableService --> AbstractVariableService
 deactivate AbstractVariableService
-AbstractVariableService --> InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+AbstractVariableService --> InnerVariHandlerServiceImpl: 异步返回变量结果
+deactivate AbstractVariableService
 deactivate InnerVariHandlerServiceImpl
 InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
 deactivate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl -> VariableServiceContext : getExecutor
+InnerVariHandlerServiceImpl -> VariableServiceContext : 根据变量类型选择执行线程池：getExecutor
 activate VariableServiceContext
-VariableServiceContext -> VariableTypeEnum : getExecutorName
-activate VariableTypeEnum
-VariableTypeEnum --> VariableServiceContext
-deactivate VariableTypeEnum
 VariableServiceContext --> InnerVariHandlerServiceImpl
 deactivate VariableServiceContext
 InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : withTimeout
 activate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : timeoutAfter
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : 超时协助future：timeoutAfter
 activate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : λ→
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : 遍历future集合，获取变量结果
 activate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+deactivate InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> VariResult: 超时，返回超时结果：ofTimeout
+VariResult --> InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> VariResult: 异常，返回异常结果：ofAbnormal
+VariResult --> InnerVariHandlerServiceImpl
 deactivate InnerVariHandlerServiceImpl
 InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
 deactivate InnerVariHandlerServiceImpl
 InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
 deactivate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
+InnerVariHandlerServiceImpl --> 入口
 deactivate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
-deactivate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl -> InnerVariHandlerServiceImpl : λ→
-activate InnerVariHandlerServiceImpl
-InnerVariHandlerServiceImpl --> InnerVariHandlerServiceImpl
-deactivate InnerVariHandlerServiceImpl
-入口 -> InnerVariResponse : data
+入口 -> InnerVariResponse : 赋值最终结果：data
 activate InnerVariResponse
 InnerVariResponse --> 入口
-入口 ->[:返回变量结果
 deactivate InnerVariResponse
 return
 @enduml
