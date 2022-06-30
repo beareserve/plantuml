@@ -13,8 +13,9 @@ title 风控变量中心
 
 System(j, 决策引擎, "风险识别，风险决策，风险处置")
 
-System_Boundary(c1, "变量中心") {
+Container_Boundary(c1, "变量中心") {
     Container(b, "统一变量网关", "Java, Spring boot", "统一三方变量、变量引擎(大数据变量)、模型中心、二方变量、应用变量的变量查询，统一查询接口请求/响应格式，提供变量查询的统一入口。")
+    Container(l, "网关本地应用变量", "", "提供变量计算功能")
     Container(e, "二方变量平台", "Java, Spring boot", "提供风控内部变量查询")
     Container(s, "三方变量平台", "Java, Spring boot", "提供外部三方数据源查询")
     Container(sp, "三方配置平台", "Java, Spring boot", "对接外部数据源系统，保存数据")
@@ -27,11 +28,12 @@ System_Boundary(c1, "变量中心") {
 
 Rel(j, b, "invoke", "dubbo")
 
-Rel(b, s, "invoke", "dubbo")
-Rel(s, sp, "invoke", "dubbo")
-Rel(b, e, "invoke", "dubbo")
-Rel(b, d, "invoke", "http")
-Rel(b, m, "invoke", "dubbo")
+Rel(b, l, "a_*")
+Rel(b, e, "IV_*", "dubbo")
+Rel(b, s, "thirds_*", "dubbo")
+Rel(s, sp, "", "http")
+Rel(b, m, "JCMX*", "dubbo")
+Rel(b, d, "V_*", "http")
 'Rel(b, m, "invoke", "async, JSON/HTTPS", $tags="async")
 
 'Rel_Neighbor(d, b, "Delivers")
