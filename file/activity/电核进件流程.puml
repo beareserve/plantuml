@@ -1,0 +1,38 @@
+@startuml
+
+|#red|初始表状态0【未进件】任务审核状态11【自动审批中】分案状态0【未分配】|
+start
+-[#green]->TOPIC_PRD_FK_RMS_TO_MANUAL_APPROVE_INIT_CASE;
+:接收收单消息;
+if (进件消息中initBody是否存在task与person) then (是)
+	:提取订单号，组装原始进件数据;
+	:插入<b>rms_init_data</b>表;
+	:以订单号查询approve_task_info表;
+	if (任务主表存在订单?) then (是)
+		:抛出异常;
+		note left:INIT_DATA_ORDER_MULTIPLE_FOUND\n("103", "有多条订单数据存在")
+		stop
+		else (否)
+		:从initJsonData提取images/contacts/task/loan;
+		:组装任务主表数据;
+			note left:<b>personal</b>的certCardNoEncrypt, mobileEncrypt, sex。 \n<b>loan</b>的registCode, firstClassCode, loanAmount, customerLevel, loanPeriod, loanType, loanTypeName
+		:设置任务表状态;
+		switch (statusJsonObject.status)
+		case (空)
+			:初始进件，审核状态设为11【自动审批中】;
+		case (0)
+			:转人工，审核状态设为0【未审批】;
+		case (6)
+			:通过，审核状态设为6【通过】;
+		case (7)
+			:拒绝，审核状态设为7【拒绝】;
+		case (15)
+			:放弃，审核状态设为15【本人放弃】;
+		endswitch
+	endif
+else (否)
+			:进件失败，返回;
+			stop
+endif
+end
+@enduml
