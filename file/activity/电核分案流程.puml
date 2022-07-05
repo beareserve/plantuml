@@ -1,6 +1,6 @@
 @startuml
 
-|#red|初始表状态0【未进件】任务审核状态11【自动审批中】分案状态0【未分配】|
+|手动/首次执行|
 
 split
 -[hidden]->
@@ -8,6 +8,8 @@ split
 split again
 -[hidden]->
 :策略列表页面点击【立即执行】;
+|定时job|
+
 split again
 -[hidden]->
 :定时job分案;
@@ -26,10 +28,12 @@ end split
 :根据caseId查策略配置信息;
 :根据策略配置的产品线/规则集标签查询当日积压待分配案件;
 :根据策略设置的、当前已签到处理人，进行平均分案;
+|手动/首次执行|
 :redis保存已执行过平均分案标记;
 	note left
 	定时job,每日23:55清除标记
 	end note
+	|定时job|
 :结束;
 end
 @enduml
