@@ -1,0 +1,35 @@
+@startuml
+
+|#red|初始表状态0【未进件】任务审核状态11【自动审批中】分案状态0【未分配】|
+
+split
+-[hidden]->
+:分案策略创建时，会新增一个每日一次的分案job;
+split again
+-[hidden]->
+:策略列表页面点击【立即执行】;
+split again
+-[hidden]->
+:定时job分案;
+note right
+审核分案:0 0/1 7-20 * * ?
+核对分案:0 0/1 6-20 * * ?
+反欺诈案件分案:30 0/1 7-20 * * ?
+end note
+:对job加锁;
+:重置审核人员当前处理案件数量缓存;
+note right
+redisKey:MANUAL_APPROVE_DISPATCH_USER_LOCK_策略id_用户id
+end note
+:查找启用状态的分案策略;
+end split
+:根据caseId查策略配置信息;
+:根据策略配置的产品线/规则集标签查询当日积压待分配案件;
+:根据策略设置的、当前已签到处理人，进行平均分案;
+:redis保存已执行过平均分案标记;
+	note left
+	定时job,每日23:55清除标记
+	end note
+:结束;
+end
+@enduml
