@@ -1,16 +1,19 @@
 @startuml
-
+!pragma useVerticalIf on
 |初始进件|
-start
--[#green]->TOPIC_PRD_FK_RMS_TO_MANUAL_APPROVE_INIT_CASE;
-:接收收单消息;
+split
+   -[hidden]->
+:接收收单消息【TOPIC_PRD_FK_RMS_TO_MANUAL_APPROVE_INIT_CASE】;
 if (进件消息中initBody\n是否存在task与person) then (否)
 	:进件失败，返回;
 stop
 else (是)
 :提取订单号，\n组装原始进件数据;
 	:插入<b>rms_init_data</b>表;
-	:以订单号查询\napprove_task_info;
+	note left
+	初始状态0【未进件】
+	end note
+	:以订单号查询\n approve_task_info;
 	if (任务主表存在订单?) then (是)
 		:抛出异常;
 		note left:INIT_DATA_ORDER_MULTIPLE_FOUND\n("103", "有多条订单数据存在")
@@ -27,7 +30,6 @@ else (是)
 		:设置任务表状态;
 		if (statusJsonObject.status为空) then (是)
 			:初始进件，审核状态设为<b>11【自动审批中】;
-		|状态更新|
 		else (否)
 			if (6)
 			:通过，审核状态设为<b>6【通过】\n案件状态<b>10【已结案】;
@@ -55,9 +57,59 @@ note left
 扩展信息表 risk_extend_info_json
 end note
 if (缓存 MANUAL_APPROVE_CHANGE_STATUS_NOT_ORDER 是否有当前订单号) then (无)
-:完成初始进件;
+:完成初始进件，更新<b>rms_init_data</b>状态;
+note right
+进件完成，状态0【进件完成】
+end note
 stop
-		|状态更新|
+|状态更新|
 else (有)
+#lightblue:更新状态;
+endif
+split again
+   -[hidden]->
+:状态更新MQ;
+:抛弃VIP单;
+:加锁：MANUAL_APPROVE_UPDATE_CASE_LOCK_orderId;
+if (rms_init_data表是否有数据) then (否)
+:状态信息存入缓存;
+note right
+MANUAL_APPROVE_CHA
+NGE_STATUS_NOT_ORDER
+end note
+stop
+else (是)
+:rms_init_data表状态;
+if (-1【进件错误】；0【未进件】)
+:保存状态到redis;
+stop
+elseif(4【状态更新完成】)
+:statusChangeBody.status为15\n更新任务主表分案状态为-1【取消订单】\n审核状态为15;
+stop
+elseif(2【进件完成】)
+endif
+endif
+end split
+:按状态处理;
+if (6)
+			:通过，审核状态设为<b>6【通过】\n案件状态<b>10【已结案】，\n更新授信金额\n保存历史操作记录;
+			elseif (7)
+			:拒绝，审核状态设为<b>7【拒绝】\n案件状态<b>10【已结案】\n保存历史操作记录;
+			elseif (15)
+			:放弃，审核状态设为<b>15【本人放弃】\n案件状态<b>-1【已取消】\n保存历史操作记录;
+			elseif (0)
+			:转人工，审核状态设为<b>0【未审批】\n案件状态<b>0【未分配】;
+			:桔子买单单笔交易订单需补充资料;
+			note right
+			更新分案状态为0【未分配】
+			审核状态为4【补充资料中】
+			发送消息给桔子买单【TOPIC_PRD_FK_MANUAL
+			_APPROVE_SUPPLY_INFO】
+			end note
+			:补充信息：新老客户渠道数量;历史逾期天数;乾坤分;
+			:插入approve_supply_data表;
+			:按产品线匹配题库编号，保存历史流水表;
+			endif
+:更新任务主表;
 end
 @enduml
