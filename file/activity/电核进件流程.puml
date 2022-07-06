@@ -1,13 +1,16 @@
 @startuml
 
-|初始表状态0【未进件】任务审核状态11【自动审批中】分案状态0【未分配】|
+|初始进件|
 start
 -[#green]->TOPIC_PRD_FK_RMS_TO_MANUAL_APPROVE_INIT_CASE;
 :接收收单消息;
-if (进件消息中initBody是否存在task与person) then (是)
-	:提取订单号，组装原始进件数据;
+if (进件消息中initBody\n是否存在task与person) then (否)
+	:进件失败，返回;
+stop
+else (是)
+:提取订单号，\n组装原始进件数据;
 	:插入<b>rms_init_data</b>表;
-	:以订单号查询approve_task_info表;
+	:以订单号查询\napprove_task_info;
 	if (任务主表存在订单?) then (是)
 		:抛出异常;
 		note left:INIT_DATA_ORDER_MULTIPLE_FOUND\n("103", "有多条订单数据存在")
@@ -22,23 +25,39 @@ if (进件消息中initBody是否存在task与person) then (是)
 			 customerLevel, loanPeriod, loanType, loanTypeName
 			end note
 		:设置任务表状态;
-		if (statusJsonObject.status) then (空)
-			:初始进件，审核状态设为11【自动审批中】;
+		if (statusJsonObject.status为空) then (是)
+			:初始进件，审核状态设为<b>11【自动审批中】;
 		|状态更新|
-		elseif (0)
-			:转人工，审核状态设为0【未审批】;
-		elseif (6)
-			:通过，审核状态设为6【通过】;
-		elseif (7)
-			:拒绝，审核状态设为7【拒绝】;
-		else (15)
-			:放弃，审核状态设为15【本人放弃】;
+		else (否)
+			if (6)
+			:通过，审核状态设为<b>6【通过】\n案件状态<b>10【已结案】;
+			elseif (7)
+			:拒绝，审核状态设为<b>7【拒绝】\n案件状态<b>10【已结案】;
+			elseif (15)
+			:放弃，审核状态设为<b>15【本人放弃】\n案件状态<b>-1【已取消】;
+			elseif (0)
+			:转人工，审核状态设为<b>0【未审批】\n案件状态<b>0【未分配】;
+			endif
 		endif
 	endif
-|初始表状态0【未进件】任务审核状态11【自动审批中】分案状态0【未分配】|
-else (否)
-			:进件失败，返回;
-			stop
+|初始进件|
 endif
+:线下大额订单插入核对表;
+:插入任务主表approve_task_info;
+:插入子表数据;
+note left
+用户表 risk_personal_info_new
+订单表 risk_order_info_new
+工作表 risk_company_info_new
+图片表 risk_image_info
+联系人表 risk_contact_info_new
+电话表 risk_phone_task
+扩展信息表 risk_extend_info_json
+end note
+if (缓存 MANUAL_APPROVE_CHANGE_STATUS_NOT_ORDER 是否有当前订单号) then (无)
+:完成初始进件;
+stop
+		|状态更新|
+else (有)
 end
 @enduml
