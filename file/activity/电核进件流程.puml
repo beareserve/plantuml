@@ -1,6 +1,6 @@
 @startuml
 
-|#red|初始表状态0【未进件】任务审核状态11【自动审批中】分案状态0【未分配】|
+|初始表状态0【未进件】任务审核状态11【自动审批中】分案状态0【未分配】|
 start
 -[#green]->TOPIC_PRD_FK_RMS_TO_MANUAL_APPROVE_INIT_CASE;
 :接收收单消息;
@@ -20,6 +20,8 @@ if (进件消息中initBody是否存在task与person) then (是)
 		switch (statusJsonObject.status)
 		case (空)
 			:初始进件，审核状态设为11【自动审批中】;
+|状态更新|
+
 		case (0)
 			:转人工，审核状态设为0【未审批】;
 		case (6)
@@ -30,6 +32,7 @@ if (进件消息中initBody是否存在task与person) then (是)
 			:放弃，审核状态设为15【本人放弃】;
 		endswitch
 	endif
+|初始表状态0【未进件】任务审核状态11【自动审批中】分案状态0【未分配】|
 else (否)
 			:进件失败，返回;
 			stop
