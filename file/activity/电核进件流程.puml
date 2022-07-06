@@ -22,19 +22,18 @@ if (进件消息中initBody是否存在task与person) then (是)
 			 customerLevel, loanPeriod, loanType, loanTypeName
 			end note
 		:设置任务表状态;
-		switch (statusJsonObject.status)
-		case (空)
+		if (statusJsonObject.status) then (空)
 			:初始进件，审核状态设为11【自动审批中】;
-			|状态更新|
-		case (0)
+		|状态更新|
+		elseif (0)
 			:转人工，审核状态设为0【未审批】;
-		case (6)
+		elseif (6)
 			:通过，审核状态设为6【通过】;
-		case (7)
+		elseif (7)
 			:拒绝，审核状态设为7【拒绝】;
-		case (15)
+		else (15)
 			:放弃，审核状态设为15【本人放弃】;
-		endswitch
+		endif
 	endif
 |初始表状态0【未进件】任务审核状态11【自动审批中】分案状态0【未分配】|
 else (否)

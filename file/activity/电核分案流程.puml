@@ -4,7 +4,9 @@
 
 split
 -[hidden]->
-:分案策略创建时，会新增一个每日一次的分案job;
+:分案策略创建时，会将策略加入每天固定分钟执行的job;
+:遍历job的参数，即策略集合，并按优先级从小到大排序;
+:按序开始分案;
 split again
 -[hidden]->
 :策略列表页面点击【立即执行】;
@@ -26,14 +28,19 @@ end note
 :查找启用状态的分案策略;
 end split
 :根据caseId查策略配置信息;
+if (判断caseId是否在 MANUAL_APPROVE_AVG_CASE_STATUS) then (是)
 :根据策略配置的产品线/规则集标签查询当日积压待分配案件;
 :根据策略设置的、当前已签到处理人，进行平均分案;
 |手动/首次执行|
 :redis保存已执行过平均分案标记;
 	note left
-	定时job,每日23:55清除标记
+	redisKey：MANUAL_APPROVE_AVG_CASE_STATUS
+	该缓存会在定时job,每日23:55进行清除
 	end note
 	|定时job|
 :结束;
 end
+else (否)
+:策略未被激活，不执行;
+stop
 @enduml
