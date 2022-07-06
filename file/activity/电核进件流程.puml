@@ -13,9 +13,14 @@ if (进件消息中initBody是否存在task与person) then (是)
 		note left:INIT_DATA_ORDER_MULTIPLE_FOUND\n("103", "有多条订单数据存在")
 		stop
 		else (否)
-		:从initJsonData提取images/contacts/task/loan;
+		:从initJsonData提取
+		images/contacts/task/loan;
 		:组装任务主表数据;
-			note left:<b>personal</b>的certCardNoEncrypt, mobileEncrypt, sex。 \n<b>loan</b>的registCode, firstClassCode, loanAmount, customerLevel, loanPeriod, loanType, loanTypeName
+			note left
+			<b>personal</b>的certCardNoEncrypt, mobileEncrypt, sex。
+			<b>loan</b>的registCode, firstClassCode, loanAmount,
+			 customerLevel, loanPeriod, loanType, loanTypeName
+			end note
 		:设置任务表状态;
 		switch (statusJsonObject.status)
 		case (空)
