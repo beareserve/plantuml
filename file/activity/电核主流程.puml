@@ -81,7 +81,7 @@ stop
 else (是)
 :rms_init_data表状态;
 if (-1【进件错误】；0【未进件】)
-:保存状态到redis;
+:保存状态更新信息到redis;
 stop
 elseif(4【状态更新完成】)
 :statusChangeBody.status为15\n更新任务主表分案状态为-1【取消订单】\n审核状态为15;
@@ -103,6 +103,7 @@ if (6)
 			note right
 			更新分案状态为0【未分配】
 			审核状态为4【补充资料中】
+			保存到 <b>risk_task_work</b> 表
 			发送消息给桔子买单【TOPIC_PRD_FK_MANUAL
 			_APPROVE_SUPPLY_INFO】
 			end note
@@ -111,5 +112,32 @@ if (6)
 			:按产品线匹配题库编号，保存历史流水表;
 			endif
 :更新任务主表;
+|人工审核|
+:分案，人工处理;
+:处理结果;
+if (4【补充资料】/5【补充核销】)
+:查询redis，获取超时时间配置\nMANUAL_APPROVE_WORK_CONFIG;
+note left
+目前仅支持桔子买单订单
+end note
+:发送消息给桔子买单\nTOPIC_PRD_FK_MANUAL_APPROVE_SUPPLY_INFO;
+:原状态为挂起时，取消消息中心挂起到期提醒;
+elseif (6【通过】/16【分流通过】)
+:原状态为挂起时，取消消息中心挂起到期提醒;
+:保存客户标签与问题答案;
+:结果同步rms/新收单;
+:客户标签同步给乾坤标签系统;
+elseif (7【拒绝】)
+:原状态为挂起时，取消消息中心挂起到期提醒;
+:客户信息加入重复下单控制;
+:保存客户标签与问题答案;
+:结果同步rms/新收单;
+:客户标签同步给乾坤标签系统;
+:有上传欺诈认定标签，通过乾坤提报给反欺诈;
+elseif (3【挂起】)
+:检查订单挂起次数;
+:发送挂起到期提醒给消息中心;
+endif
+:结束;
 end
 @enduml
