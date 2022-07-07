@@ -1,0 +1,28 @@
+@startuml
+start
+:mq进件【TOPIC_FK_CREATE_WORK_ORDER-input】;
+:解析入参，敏感字段处理，校验;
+:根据mq key防重校验;
+:组装工单参数;
+:开始创建;
+:查询该用户历史未处理工单;
+:根据身份证号或手机号查旧工单;
+if (是否存在旧工单) then(存在)
+:合并新旧工单的reportDesc，更新到旧工单;
+:合并新提报的产品线到旧工单;
+stop
+else (不存在)
+:插入新工单;
+:为欺诈提报【FromSystemEnum.CHEAT】，设置处理人为当前登录用户，工单状态设为已分配【WorkOrderStatusEnum.ALLOCATED】；\n其他提报，只设置创建人为system;
+:遍历子工单，根据productLineCode，查询RpcProductLineService获取产品线名称，用逗号拼接为 productLineNames;
+:数据组装完毕，插入工单主表 work_order;
+endif
+:创建子工单;
+if (进件完毕，判断身份证号/手机号是否有历史加黑) then (是)
+:更新工单状态为已处理，并标记为上次加黑标签;
+:反馈给电核、回访、催收、客服;
+else (否)
+endif
+:结束;
+end
+@enduml
