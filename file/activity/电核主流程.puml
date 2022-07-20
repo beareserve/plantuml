@@ -13,34 +13,60 @@ else (是)
 	note left
 	初始状态0【未进件】
 	end note
-	:以订单号查询\n approve_task_info;
-	if (任务主表存在订单?) then (是)
-		:抛出异常;
-		note left:INIT_DATA_ORDER_MULTIPLE_FOUND\n("103", "有多条订单数据存在")
-		stop
-		else (否)
-		:从initJsonData提取
-		images/contacts/task/loan;
-		:组装任务主表数据;
-			note left
-			<b>personal</b>的certCardNoEncrypt, mobileEncrypt, sex。
-			<b>loan</b>的registCode, firstClassCode, loanAmount,
-			 customerLevel, loanPeriod, loanType, loanTypeName
+	if (进件消息中initBody\n是否存在limitType字段) then (是(【芝麻信用、营业执照】))
+	#LightPink:<b>核对进件;
+	:以订单号查询核对主表\n check_task_info;
+			if (核对主表存在订单且非重试任务?) then (是)
+			label lab1
+			label lab2
+			:抛出异常;
+			note left:INIT_DATA_ORDER_MULTIPLE_FOUND\n("103", "有多条订单数据存在")
+			stop
+			else (否)
+			:插入核对主表;
+			note right
+				caseStatus:WAITING_NOTIFY(-10, "等待转人工")
+				checkStatus:UN_CHECK(0,"未核对")
 			end note
-		:设置任务表状态;
-		if (statusJsonObject.status为空) then (是)
-			:初始进件，审核状态设为<b>11【自动审批中】;
-		else (否)
-			if (6)
-			:通过，审核状态设为<b>6【通过】\n案件状态<b>10【已结案】;
-			elseif (7)
-			:拒绝，审核状态设为<b>7【拒绝】\n案件状态<b>10【已结案】;
-			elseif (15)
-			:放弃，审核状态设为<b>15【本人放弃】\n案件状态<b>-1【已取消】;
-			elseif (0)
-			:转人工，审核状态设为<b>0【未审批】\n案件状态<b>0【未分配】;
+			:保存子表;
+			note right
+				用户表 check_personal_info_new
+				图片表 check_image_info
+				扩展信息表 check_extend_info_json
+			end note
+			:核对初始进件结束;
 			endif
-		endif
+	end
+	else (否)
+		:以订单号查询\n approve_task_info;
+		if (任务主表存在订单且非重试任务?) then (是)
+			:抛出异常;
+			note left:INIT_DATA_ORDER_MULTIPLE_FOUND\n("103", "有多条订单数据存在")
+			stop
+			goto lab2
+			else (否)
+			:从initJsonData提取
+			images/contacts/task/loan;
+			:组装任务主表数据;
+				note left
+				<b>personal</b>的certCardNoEncrypt, mobileEncrypt, sex。
+				<b>loan</b>的registCode, firstClassCode, loanAmount,
+				 customerLevel, loanPeriod, loanType, loanTypeName
+				end note
+			:设置任务表状态;
+			if (statusJsonObject.status为空) then (是)
+				:初始进件，审核状态设为<b>11【自动审批中】;
+			else (否)
+				if (6)
+				:通过，审核状态设为<b>6【通过】\n案件状态<b>10【已结案】;
+				elseif (7)
+				:拒绝，审核状态设为<b>7【拒绝】\n案件状态<b>10【已结案】;
+				elseif (15)
+				:放弃，审核状态设为<b>15【本人放弃】\n案件状态<b>-1【已取消】;
+				elseif (0)
+				:转人工，审核状态设为<b>0【未审批】\n案件状态<b>0【未分配】;
+				endif
+			endif
 	endif
 |初始进件|
 endif
@@ -56,6 +82,7 @@ note left
 电话表 risk_phone_task
 扩展信息表 risk_extend_info_json
 end note
+endif
 if (缓存 MANUAL_APPROVE_CHANGE_STATUS_NOT_ORDER 是否有当前订单号) then (无)
 :完成初始进件，更新<b>rms_init_data</b>状态;
 note right
@@ -87,6 +114,7 @@ elseif(4【状态更新完成】)
 :statusChangeBody.status为15\n更新任务主表分案状态为-1【取消订单】\n审核状态为15;
 stop
 elseif(2【进件完成】)
+
 endif
 endif
 end split
