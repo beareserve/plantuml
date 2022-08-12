@@ -1,0 +1,45 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class AbstractLambdaWrapper<T, Children>
+class AbstractWrapper<T, R, Children>
+interface Compare<Children, R> << interface >>
+interface Func<Children, R> << interface >>
+annotation FunctionalInterface << annotation >>
+interface ISqlSegment << interface >>
+interface Join<Children> << interface >>
+class LambdaQueryWrapper<T>
+class LambdaUpdateWrapper<T>
+interface Nested<Param, Children> << interface >>
+class QueryWrapper<T>
+interface Serializable << interface >>
+annotation SuppressWarnings << annotation >>
+class UpdateWrapper<T>
+class Wrapper<T>
+
+AbstractLambdaWrapper  -[#000082,plain]-^  AbstractWrapper
+AbstractWrapper        -[#008200,dashed]-^  Compare
+AbstractWrapper        -[#008200,dashed]-^  Func
+AbstractWrapper        -[#008200,dashed]-^  Join
+AbstractWrapper        -[#008200,dashed]-^  Nested
+AbstractWrapper        -[#999900,dotted]-  SuppressWarnings
+AbstractWrapper        -[#000082,plain]-^  Wrapper
+Compare                -[#008200,plain]-^  Serializable
+Func                   -[#008200,plain]-^  Serializable
+ISqlSegment            -[#999900,dotted]-  FunctionalInterface
+ISqlSegment            -[#008200,plain]-^  Serializable
+Join                   -[#008200,plain]-^  Serializable
+LambdaQueryWrapper     -[#000082,plain]-^  AbstractLambdaWrapper
+LambdaQueryWrapper     -[#008200,dashed]-^  Serializable
+LambdaUpdateWrapper    -[#000082,plain]-^  AbstractLambdaWrapper
+LambdaUpdateWrapper    -[#008200,dashed]-^  Serializable
+Nested                 -[#008200,plain]-^  Serializable
+QueryWrapper           -[#000082,plain]-^  AbstractWrapper
+QueryWrapper           -[#008200,dashed]-^  Serializable
+UpdateWrapper          -[#000082,plain]-^  AbstractWrapper
+UpdateWrapper          -[#008200,dashed]-^  Serializable
+Wrapper                -[#008200,dashed]-^  ISqlSegment
+@enduml
