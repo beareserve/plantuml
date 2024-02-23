@@ -1,15 +1,50 @@
 @startuml
 '!define Junction_Or circle #black
 '!define Junction_And circle #whitesmoke
-rectangle 变量网关 #orange
-rectangle 认证中心
-rectangle 额度 #lightgreen
-rectangle 模型 #lightblue
-rectangle 桔子互联 #lightgray
-rectangle 二方变量 #red
-二方变量 -down-> 额度
-二方变量 -down->  认证中心
+rectangle 变量网关 #MediumSeaGreen
+
+rectangle 二方变量 #PaleGreen
+
+rectangle mysql查询 #HoneyDew
+rectangle rms_thirds_second #FloralWhite
+rectangle rms_model_config  #FloralWhite
+rectangle autoapprove       #FloralWhite
+rectangle rms               #FloralWhite
+rectangle front             #FloralWhite
+rectangle rms_third         #FloralWhite
+rectangle inloan            #FloralWhite
+rectangle inloanmember      #FloralWhite
+rectangle antiFraud         #FloralWhite
+rectangle engine            #FloralWhite
+
+rectangle rpc调用 #HoneyDew
+
+rectangle http #Beige
+
+rectangle dubbo #Beige
+rectangle 认证中心 #Azure
+rectangle 额度 #Azure
+rectangle 模型 #Azure
+rectangle 桔子互联 #Azure
+
+
 变量网关 -down-> 二方变量
-二方变量 -down-> 模型
-二方变量 -down-> 桔子互联
+二方变量 -down-> mysql查询
+mysql查询 -down-> rms_thirds_second
+mysql查询 -down-> rms_model_config
+mysql查询 -down-> autoapprove
+mysql查询 -down-> rms
+mysql查询 -down-> front
+mysql查询 -down-> rms_third
+mysql查询 -down-> inloan
+mysql查询 -down-> inloanmember
+mysql查询 -down-> antiFraud
+mysql查询 -down-> engine
+二方变量 -down->  rpc调用
+rpc调用 -down->  http
+rpc调用 -down->  dubbo
+dubbo -down-> 模型
+dubbo -down-> 认证中心
+dubbo -down-> 额度
+dubbo -down-> 桔子互联
 @enduml
