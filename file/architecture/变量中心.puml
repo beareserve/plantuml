@@ -1,5 +1,5 @@
 @startuml
-!include C:\Users\Dell\IdeaProjects\new\C4-PlantUML\C4_Container.puml
+!include C:\Users\Dell\IdeaProjects\assist\C4-PlantUML\C4_Container.puml
 '!include D:\Users\run\IdeaProjects\jz\C4-PlantUML\C4_Container.puml
 
 SHOW_PERSON_OUTLINE()
