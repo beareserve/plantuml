@@ -1,0 +1,41 @@
+sequenceDiagram
+
+	participant sd as 收单
+	participant yq as 引擎
+	participant sf as thirds-provider
+	participant b as 表third.sheng_yin_composite_score
+	participant sy as 盛银
+	participant job as job
+
+	autonumber 1
+	sd ->> yq: 收单推送订单
+	yq ->> sf: 引擎调用变量：thirds_sy_composite_score
+	sf ->> b: 用身份证号查询一天内的缓存
+	b ->> sf: 缓存命中
+	sf ->> yq: 引擎返回表中缓存值
+	b ->> sf: 缓存未命中
+	sf ->> yq: 直接返回null给引擎
+	yq ->> sd: 引擎等待收单重推
+
+	sf ->> sy: 异步发起查询
+	sf ->> sy: 2.1接口：证件上传
+	sy ->> sf: 失败，赋值默认值 -999
+	sf ->> sd: 唤醒收单
+	sf ->> sy: 成功，发起 2.2 协议签署接口
+	sy ->> sf: 2.2 非 9999 失败，，赋值默认值 -999
+	sf ->> sd: 唤醒收单
+	sy ->> sf: 2.2  9999 失败，重试3次
+	sf ->> sy: 成功，发起 2.7 预授信申请接口
+	sy ->> sf: 申请失败，重试3次
+	sy ->> sf: 重试失败，赋值默认值 -999
+	sf ->> sd: 唤醒收单
+	sy ->> sf: 申请成功
+	sf ->> b: 保存记录到表third.sheng_yin_composite_score
+
+	job ->> b: 筛选待处理数据，重试调用 2.8 查询申请结果
+	job ->> sf: 获取到结果
+	sf ->> sd: 唤醒收单
+	job ->> sf: 重试16次未成功，赋值默认值-999
+	sf ->> sd: 唤醒收单
+
+

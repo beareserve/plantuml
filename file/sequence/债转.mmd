@@ -1,0 +1,35 @@
+sequenceDiagram
+
+	participant bi as 数仓【王兆义】
+	participant asset as 资产池
+	participant abs as 友信
+	participant f as 富盈
+	participant j as 定时job
+
+	autonumber 1
+	bi ->> asset:BI推送有过逾期的账单数据到表 debt_list
+%%	j ->> asset:检查数据同步及聚合状态<br>checkDataIsCompleteHandler<br>select*from data_sync_notice where created_at > '2024-04-24 00:00:00'
+%%	autonumber 2
+%%	j -->> asset:查询账单表未处理数量<br>select count(*)from debt_list where data_status <> 1
+%%	autonumber 2
+%%	j -->> asset:7点之后，订单表或账单表还存在未处理数量或者5点后数据未同步完成，进行预警
+
+	j ->> asset:聚合账单数据<br>syncBillDataToOrderHandler<br>bi同步已完成后
+	j -->> asset:查询订单表未处理数量<br>select count(*)from order_debt_list where execute_at < '2024-04-24 00:00:00' limt 3000
+	j -->> asset:优先进行 order_debt_list 表更新操作
+	j -->> asset:根据字段debt_list的repay_plan_id查询debt_list表
+	j -->> asset:订单未绑定项目，不存在未还账单，删除order_debt_list对应记录；<br>存在未还账单，聚合更新：账龄以最大逾期日那期计算
+	j -->> asset:订单已绑定项目，进行聚合更新：金额累加、实还时间取最大值、<br>逾期时间取逾期账单最大值、账龄以最大逾期日那期计算（同上一步更新）
+
+	j -->> asset:order_debt_list 表新增操作：订单表没有未处理数据且线程池空闲，处理新增的账单数据
+	j -->> asset:查询账单表未处理<br>select*from debt_list where data_status = 0 and is_today = 1 limit 200
+	j -->> asset:账单状态state=0(未还)
+	j -->> asset:查询订单记录: select*from order_debt_list where order_id = ${debt_list.order_id} and project_code = '' limit 1
+	j -->> asset:无订单记录，插入。arrears = principal+interest, overdue_aging取overdue_day对应的账龄
+	j -->> asset:有订单记录，且订单的debt_list不含当前账单，进行合并更新：<br>overdue_day取逾期账单最大的overdue_day、对应账龄做更新、debt_list加入当前账单
+	j -->> asset:上面处理完，通过repay_plan_id更新该条账单状态为1已处理
+	asset -->> asset:创建项目→筛选债权(释放项目债权→按条件、分账龄筛选出订单→更新订单project_code及债转金额)
+	asset -->> asset:筛选债权：SELECT * FROM order_debt_list WHERE (project_code = ? AND overdue_aging IN ('m1-','m2')) ORDER BY overdue_day ASC
+	asset -->> abs:确认债权: 更新项目状态为1（审核中）→ 发送友信创建项目：状态0（审核中）
+
+
