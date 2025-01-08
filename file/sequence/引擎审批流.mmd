@@ -1,0 +1,27 @@
+sequenceDiagram
+
+	participant front as 管理页面
+	participant backend as 引擎管理后端
+	participant pilot as 平台领航系统
+	participant lark as 飞书
+	participant job as 定时job
+
+	autonumber 1
+	front ->> backend:决策分支复制版本<br>(设置版本等级)
+	front ->> backend:复制、保存决策流<br>(根据版本等级校验权限)
+	front ->> backend:查询需审批决策分支列表<br>(发布前判断当前分支是否需走审核流程)
+	front ->> backend:查询用户名与飞书用户id列表<br>(用于填充发起人、复核人)
+	front ->> backend:发起审批
+	backend ->> pilot:调用
+	pilot ->> lark:调用飞书api发起审批
+	lark ->> pilot:成功，返回审批实例code
+	pilot ->> backend:返回审批实例code<br>(更新至发布记录表，保存审批记录)
+	backend ->> front:返回成功
+	front ->> backend:审批期间编辑、删除版本需先撤销审批
+	backend ->> backend:根据当前审批的状态进行不同处理
+	backend ->> front:撤销成功
+	job ->> backend:筛选未出结果的审批记录
+	job ->> pilot:根据实例code查询飞书获取审批进度
+
+
+
